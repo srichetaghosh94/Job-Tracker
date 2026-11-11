@@ -1,114 +1,70 @@
 # Job tracker
 
-A small app for tracking job applications.
+A small app for keeping track of your job applications: where you applied, what stage each one is at, and when your next interview is.
 
-| Part | Tech | Status |
-| --- | --- | --- |
-| `frontend/` | React + TypeScript (Vite) | Done (step 1) |
-| `backend/` | Go REST API, JSON file storage | Done (step 2) |
-| Both together | Frontend switched to the real API | Next (step 3) |
+## What it does
 
-## Run the backend
+- Saves company, job title, application date, status, job posting link, interview date and notes
+- Shows your pipeline as a stage strip (Wishlist, Applied, Interviewing, Offer, Closed) that also works as a filter
+- Highlights your next upcoming interview at the top
+- Search, sort, add, edit and delete applications
+- Stores everything in a local JSON file, so no database is needed
 
-Requires Go 1.22 or newer. No other dependencies.
+## Tech stack
+
+- **Frontend:** React + TypeScript (Vite)
+- **Backend:** Go (standard library only), REST API
+- **Storage:** JSON file at `backend/data/applications.json`
+
+## Getting started
+
+You need [Go](https://go.dev/dl/) 1.22 or newer and [Node.js](https://nodejs.org/) 20 or newer.
+
+Run the backend in one terminal:
 
 ```bash
 cd backend
 go run .
 ```
 
-It listens on http://127.0.0.1:8080 and stores everything in `backend/data/applications.json`.
-The file ships with three sample applications (Schwarz Digits, Osapiens, University of Oldenburg).
-Replace or delete them any time; a missing or empty file simply starts an empty list.
-
-| Setting | Flag | Environment variable | Default |
-| --- | --- | --- | --- |
-| Listen address | `-addr` | `ADDR` | `127.0.0.1:8080` |
-| Data file | `-data` | `DATA_FILE` | `data/applications.json` |
-
-Quick check once it is running:
-
-```bash
-curl http://127.0.0.1:8080/api/applications
-```
-
-Run the tests with `go test -race ./...`.
-
-### How the data file behaves
-
-- Every add, edit or delete is written to the file immediately. Nothing is saved or uploaded by hand.
-- Writes go to a temporary file first and are then renamed into place, so a crash cannot leave a half-written file.
-- The server keeps its own copy in memory. If you edit the JSON file yourself, stop the server first, or your edit is overwritten on the next change.
-- If the file exists but is not valid JSON, the server refuses to start instead of overwriting it.
-
-## Run the frontend
-
-Requires Node 20 or newer.
+Run the frontend in a second terminal:
 
 ```bash
 cd frontend
-npm install
+npm install     # first time only
 npm run dev
 ```
 
-Open http://localhost:5173. At the moment the app runs on sample data saved in your browser
-(`VITE_API_MODE=mock` in `frontend/.env`). To use the Go backend instead, start the backend,
-set `VITE_API_MODE=rest` in `frontend/.env`, and restart `npm run dev`. Vite forwards `/api`
-to the backend, so no CORS setup is needed.
+Then open http://localhost:5173. Press `Ctrl+C` in a terminal to stop that server.
 
-Other scripts: `npm run typecheck`, `npm run build`.
+`frontend/.env` decides where the data comes from: `VITE_API_MODE=rest` uses the Go backend, and `VITE_API_MODE=mock` uses sample data saved in your browser only. Restart `npm run dev` after changing it.
 
-## How the frontend is organised
+## Your data
 
-```
-frontend/src
-  types.ts                 Application type = the JSON shape the backend uses
-  api/types.ts             ApplicationsApi interface and the REST contract
-  api/rest.ts              fetch client for the Go backend
-  api/mock.ts              localStorage stand-in with sample data
-  api/index.ts             picks mock or rest from VITE_API_MODE
-  hooks/useApplications.ts load, create, update, remove
-  lib/                     dates, stages, search/sort/filter helpers
-  components/              Hero, StageRail, Toolbar, ApplicationTable, dialogs, Toast
-  styles/                  design tokens and app styles
-```
+Every change is saved to `backend/data/applications.json` straight away. The file ships with example entries, so replace or delete them with your own. If you edit the file by hand, stop the backend first. If this repo is public, don't commit your real applications.
 
-## How the backend is organised
+## Project structure
 
 ```
-backend/
-  main.go          flags, startup, graceful shutdown
-  handlers.go      routes, JSON responses, request logging
-  model.go         Application type and validation rules
-  store.go         in-memory list + atomic JSON file persistence
-  *_test.go        validation, store and HTTP tests
-  data/applications.json
+frontend/   React app (components, API client, styles)
+backend/    Go server: handlers, validation, JSON file storage, tests
+  data/     applications.json
 ```
 
-## API contract
+## API
 
-Base path `/api/applications`.
+| Action | Request |
+| --- | --- |
+| List | `GET /api/applications` |
+| Create | `POST /api/applications` |
+| Update | `PUT /api/applications/{id}` |
+| Delete | `DELETE /api/applications/{id}` |
 
-| Action | Request | Success |
-| --- | --- | --- |
-| List | `GET /api/applications` | `200` with `Application[]` |
-| Create | `POST /api/applications` with an `Application` body without `id` | `201` with the created `Application` |
-| Update | `PUT /api/applications/{id}` with a body without `id` | `200` with the updated `Application` |
-| Delete | `DELETE /api/applications/{id}` | `204`, no body |
-| Health | `GET /api/health` | `200` with `{ "status": "ok" }` |
+An application has these fields: `id`, `company`, `jobTitle`, `applicationDate` (`YYYY-MM-DD`), `status` (`wishlist`, `applied`, `interview`, `offer`, `rejected` or `withdrawn`), `jobUrl`, `interviewDate` (`YYYY-MM-DDTHH:mm`) and `notes`. Errors come back as `{ "error": "message" }`.
 
-Errors: `400` for invalid input, `404` for an unknown id, `413` for a body over 1 MiB, `500` if
-the file cannot be written. Each comes with `{ "error": "message the user can read" }`.
+## Tests
 
-```json
-{
-  "id": "string, generated by the server",
-  "company": "string, required",
-  "jobTitle": "string, required",
-  "applicationDate": "YYYY-MM-DD, required unless status is wishlist (then may be empty)",
-  "status": "wishlist | applied | interview | offer | rejected | withdrawn",
-  "jobUrl": "http(s) URL, or empty",
-  "interviewDate": "YYYY-MM-DDTHH:mm in local time, or empty",
-  "notes": "string, may be empty"
-}
+```bash
+cd backend
+go test ./...
 ```
