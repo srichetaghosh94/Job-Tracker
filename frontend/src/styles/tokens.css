@@ -1,0 +1,33 @@
+/*
+  Design tokens.
+
+  The palette is stationery: ballpoint-blue ink on cool paper, with a
+  highlighter yellow reserved for one meaning only (an interview that is
+  still ahead). The four stage colours run light to dark so that "how far
+  along" reads as depth of ink.
+*/
+:root {
+  --paper: #f6f7fa;
+  --surface: #ffffff;
+  --ink: #111b3a;
+  --ink-muted: #4f5873;
+  --ink-faint: #8089a3;
+  --line: #dadfeb;
+  --line-strong: #b9c1d6;
+
+  --stage-wishlist: #e3e7f2;
+  --stage-applied: #bac4e4;
+  --stage-interview: #7f92d0;
+  --stage-offer: #243c9a;
+  --stage-closed: #e9ebf1;
+  --stage-closed-stripe: #d4d9e6;
+
+  --highlight: #ffe066;
+  --danger: #b3261e;
+
+  --font: "Archivo Variable", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  --radius-s: 4px;
+  --radius-m: 6px;
+  --radius-l: 10px;
+}

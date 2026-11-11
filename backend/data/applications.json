@@ -1,0 +1,22 @@
+[
+  {
+    "id": "5f0c2a9e1b7d4c3a8e6f10d2b4a79c01",
+    "company": "Company 1",
+    "jobTitle": "Software Engineer, Cloud Platform",
+    "applicationDate": "2026-11-03",
+    "status": "offer",
+    "jobUrl": "",
+    "interviewDate": "2026-11-18T14:00",
+    "notes": "First call with the hiring manager. Prepare questions about the team and how the work is split across teams."
+  },
+  {
+    "id": "9b3e7d1c4a2f4586b0c8e3a71d5f2e02",
+    "company": "Company 2",
+    "jobTitle": "Backend Engineer",
+    "applicationDate": "2026-10-27",
+    "status": "applied",
+    "jobUrl": "",
+    "interviewDate": "",
+    "notes": "Applied through the careers page. Follow up if there is no reply by mid-November."
+  }
+]
